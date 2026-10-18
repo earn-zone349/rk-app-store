@@ -4,13 +4,11 @@ import {
   fetchAdminStats,
   fetchAuditLog,
   fetchRevenueStats,
-  fetchAnalyticsSummary,
-  fetchBudgetProjection,
+  fetchAnalyticsSummary,  
   type AdminStats,
   type AuditLogEntry,
   type RevenueStats,
   type AnalyticsSummary,
-  type BudgetProjection,
 } from '@/services/admin'
 
 const ACTION_LABEL: Record<string, string> = {
