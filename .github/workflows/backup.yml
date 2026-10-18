@@ -1,0 +1,44 @@
+name: Database Backup
+
+# #79 — Supabase's free tier has no automatic backups (that's a paid-plan
+# feature); this replaces it using only infrastructure already in use —
+# GitHub Actions' own artifact storage — rather than introducing a new
+# service/account just to hold a few compressed SQL files.
+#
+# One-time setup (see PHASE9_SETUP.md, #79):
+#   1. Supabase Dashboard → Project Settings → Database → find the
+#      "Connection string" (URI format, "Session pooler" or direct
+#      connection both work)
+#   2. Add it as a GitHub repo secret named DATABASE_URL
+#
+# Retention: 90 days (GitHub's max for public repos' free tier; private
+# repos can go further on paid GitHub plans — adjust retention-days below
+# if you have one). That means at any point you can restore to any daily
+# snapshot within the last 3 months. For anything before that, there's no
+# copy — worth knowing that boundary rather than assuming "backed up"
+# means "backed up forever."
+
+on:
+  schedule:
+    - cron: '0 20 * * *' # 20:00 UTC = 2:00 AM Bangladesh time (UTC+6), daily
+  workflow_dispatch: {}
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install postgresql-client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Dump database
+        run: |
+          pg_dump "${{ secrets.DATABASE_URL }}" \
+            --no-owner --no-privileges --format=custom \
+            --file="backup-$(date +%Y-%m-%d).dump"
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: backup-*.dump
+          retention-days: 90

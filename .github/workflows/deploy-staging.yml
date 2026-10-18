@@ -1,0 +1,49 @@
+name: Deploy Staging
+
+# Separate from deploy.yml (production, GitHub Pages, triggered by `main`)
+# on purpose — GitHub Pages serves exactly one site per repo, so a second,
+# independently-updatable environment needs a different host. Netlify's
+# free tier is the natural fit here: it costs nothing, and unlike GitHub
+# Pages it's fine having two different sites (staging + nothing else)
+# point at it. Production stays on GitHub Pages — this workflow never
+# touches that deployment.
+#
+# One-time setup needed (see PHASE9_SETUP.md, #78):
+#   1. A free Netlify account + a new site (doesn't need a git connection —
+#      this workflow pushes to it directly via the Netlify CLI)
+#   2. A SECOND Supabase project for staging (so staging test data never
+#      touches real production data)
+#   3. GitHub repo secrets: NETLIFY_AUTH_TOKEN, NETLIFY_SITE_ID,
+#      VITE_SUPABASE_URL_STAGING, VITE_SUPABASE_ANON_KEY_STAGING
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch: {}
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build (against STAGING Supabase project)
+        run: npm run build
+        env:
+          # No BASE_PATH override — Netlify serves from the domain root,
+          # unlike the GitHub Pages project-page subpath in deploy.yml.
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL_STAGING }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY_STAGING }}
+          SITE_URL: ${{ vars.STAGING_SITE_URL }}
+
+      - name: Deploy to Netlify
+        run: npx netlify-cli deploy --dir=dist --prod --site=${{ secrets.NETLIFY_SITE_ID }} --auth=${{ secrets.NETLIFY_AUTH_TOKEN }}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RK App Store</title>
+    <meta name="description" content="RK App Store — নিজস্ব app marketplace, verified developer-দের APK-সহ." />
+
+    <!-- #77 — security hardening, meta-tag version. GitHub Pages serves
+         static files with fixed headers it doesn't let you customize —
+         no _headers/vercel.json-style config is possible there. A <meta
+         http-equiv> CSP is the one security header that CAN be set this
+         way; it's real and browsers do enforce it, but it's weaker than
+         the HTTP-header version in a few ways CSP's own spec documents:
+         it can't set frame-ancestors, can't report violations anywhere
+         (no report-uri support via meta), and doesn't cover the response
+         before any HTML has even loaded. X-Frame-Options, Strict-
+         Transport-Security, and Permissions-Policy have NO meta-tag
+         equivalent at all — those need actual HTTP headers, which means
+         moving to a host that supports them (Cloudflare Pages, Netlify,
+         Vercel — all free) if that hardening matters more than staying on
+         GitHub Pages. public/_headers in this repo is written and ready
+         for exactly that move, inactive here, active the moment this
+         deploys to a host that reads it. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://fcmregistrations.googleapis.com https://firebaseinstallations.googleapis.com; frame-src https://challenges.cloudflare.com;"
+    />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Phase 6, step 50: Cloudflare Turnstile CAPTCHA widget script.
+         Loaded once globally here (not per-component) since the widget is
+         reused across forms; src/components/Captcha.tsx waits for
+         window.turnstile to be ready before rendering. -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  </head>
+  <body class="bg-paper text-ink">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

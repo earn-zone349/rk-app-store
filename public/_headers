@@ -1,0 +1,11 @@
+# Read automatically by Netlify and Cloudflare Pages (both free tier).
+# GitHub Pages ignores this file entirely — see the comment in index.html
+# for why the CSP meta tag there is the best available substitute until/
+# unless this deploys somewhere that reads this file.
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
